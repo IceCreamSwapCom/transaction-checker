@@ -4,8 +4,10 @@ import axios from "axios";
 const provider = new JsonRpcProvider("https://rpc-core.icecreamswap.com");
 
 const targetWalletAddress = "0x7489ed13DA72E8b6B38bd1Fd122259fD779077b5";
-const feeToken = "0xc0E49f8C615d3d4c245970F6Dc528E4A47d69a44";
-const feeAmount = ethers.parseEther("1");
+const feeToken = "0x81bCEa03678D1CEF4830942227720D542Aa15817";
+const feeAmount = ethers.parseEther("5");
+const kycEndpoint = "http://localhost:3000/api/add-kyc";
+const chainId = 1116;
 
 const watchForTransactions = async () => {
   const filter = {
@@ -40,7 +42,17 @@ const watchForTransactions = async () => {
       return;
     }
 
-    console.log(`[SUCCESS] Received ${valueString} from ${from}`);
+    axios
+      .post(kycEndpoint, {
+        transactionHash,
+        address: fromAddress,
+        chainId,
+        apiKey: process.env.API_KEY,
+      })
+      .catch((err) => {
+        console.error("Error adding KYC:");
+        console.error(err);
+      });
   });
 };
 
